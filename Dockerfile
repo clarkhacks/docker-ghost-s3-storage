@@ -1,4 +1,4 @@
-FROM ghost:5.59.0
+FROM ghost:5.59.0 AS ghost-base
 
 WORKDIR /var/lib/ghost
 ARG storage__active
@@ -19,5 +19,8 @@ ENV GHOST_STORAGE_ADAPTER_S3_FORCE_PATH_STYLE=$GHOST_STORAGE_ADAPTER_S3_FORCE_PA
 ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 ENV AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
-RUN npm install -g ghost-storage-adapter-s3 && \
-    ln -s /usr/local/lib/node_modules/ghost-storage-adapter-s3 ./current/core/server/adapters/storage/s3
+RUN npm install --prefix /tmp/ghost-storage-adapter-s3 ghost-storage-adapter-s3 && \
+    cp -r /tmp/ghost-storage-adapter-s3/node_modules/ghost-storage-adapter-s3 current/core/server/adapters/storage/s3 && \
+    rm -r /tmp/ghost-storage-adapter-s3
+
+RUN npm install ghost-storage-base && npm install aws-sdk
